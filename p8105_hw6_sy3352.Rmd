@@ -1,5 +1,21 @@
 ---
 title: "p8105_hw6_sy3352"
+author: "Su Yan"
+date: "2025-11-23"
 output: github_document
 ---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+set.seed(1)
+library(p8105.datasets)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+## Problem 1
+```{r}
+homicides_df = read_csv("data/homicide-data.csv") |> 
+  mutate(location = sprintf("%s, %s", city, state))
+```
 
