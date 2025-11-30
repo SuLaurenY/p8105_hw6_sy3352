@@ -43,3 +43,18 @@ baltimore_results = baltimore_fit |>
 baltimore_results
 ```
 
+```{r}
+by_city = homicides_df |> 
+  group_by(location) |> 
+  nest() |> 
+  mutate(glm_model = map(data, ~glm(solved ~ victim_age + victim_race + 
+                                      victim_sex, data = .x, family = binomial()
+  )),
+  results = map(glm_model, ~broom::tidy(.x, conf.int = TRUE, 
+                                        exponentiate = TRUE))) |> 
+  select(location, results) |> 
+  unnest(results) |> 
+  filter(term == "victim_sexMale") |>
+  select(location, adjusted_OR = estimate, conf.low, conf.high, p.value) 
+```
+
