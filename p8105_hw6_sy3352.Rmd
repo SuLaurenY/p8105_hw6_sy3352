@@ -10,12 +10,19 @@ library(tidyverse)
 library(rvest)
 set.seed(1)
 library(p8105.datasets)
+data("weather_df")
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 ## Problem 1
 ```{r}
 homicides_df = read_csv("data/homicide-data.csv") |> 
-  mutate(location = sprintf("%s, %s", city, state))
+  mutate(location = sprintf("%s, %s", city, state),
+         solved = case_when(
+           disposition == "Closed by arrest" ~ 1, TRUE ~ 0),
+         victim_age = as.numeric(victim_age)
+         ) |> 
+  filter(!location %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL"),
+         victim_race %in% c("Black", "White"))
 ```
 
