@@ -71,3 +71,39 @@ by_city_plot = by_city |>
 by_city_plot
 ```
 
+## Problem 2
+```{r}
+boot_weather = weather_df |> 
+  select(tmax, tmin, prcp) |> 
+  modelr::bootstrap(n = 5000) |> 
+  mutate(models = map(strap, \(df) lm(tmax ~ tmin + prcp, data = df)),
+         results = map(models, broom::tidy),
+         glances = map(models, broom::glance)) |> 
+  select(-strap, -models) |> 
+  unnest(glances, results)
+
+boot_results = boot_weather |> 
+  select(.id, r.squared, term, estimate) |> 
+  pivot_wider(names_from = term, values_from = estimate) |> 
+  mutate(ratio = tmin/prcp)
+
+boot_r_plot = boot_results |> 
+  ggplot(aes(x = r.squared)) +
+  geom_histogram()
+boot_r_plot
+
+boot_ratio_plot = boot_results |> 
+  ggplot(aes(x = ratio)) +
+  geom_histogram()
+boot_ratio_plot
+
+boot_ci = boot_results |> 
+  summarize(
+    r.squared_lower = quantile(r.squared, 0.025), 
+    r.squared_upper = quantile(r.squared, 0.975),
+    ratio_lower = quantile(ratio, 0.025), 
+    ratio_upper = quantile(ratio, 0.975)) |> 
+  knitr::kable(digits = 3)
+boot_ci
+```
+
