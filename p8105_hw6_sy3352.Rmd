@@ -122,9 +122,28 @@ bwt_df = read_csv("data/birthweight.csv") |>
   mutate(
     babysex = factor(babysex, levels = c(1,2), labels = c("male", "female")),
     father_race = factor(father_race),
-    mother_race = factor(father_race),
+    mother_race = factor(mother_race),
     malform = factor(malform, levels = c(0,1), labels = c("absent", "present"))
   ) 
-  
 ```
 
+```{r}
+proposed_model = bwt_df |> 
+  lm(bwt ~ babysex + head_cm + length_cm + mother_wt_deliver + income_hundreds +
+       father_race + mother_race + mother_height + mother_age_delivery +
+       mother_prepreg_bmi + cig_smoked_n + mother_wt_gain + gestation_week, 
+     data = _)
+summary(proposed_model)
+
+bwt_df_predict = bwt_df |> 
+  modelr::add_predictions(proposed_model) |> 
+  modelr::add_residuals(proposed_model)
+
+bwt_predict_pt = bwt_df_predict |> 
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "hotpink") +
+  labs(x = "Fitted values", y = "Residuals")
+bwt_predict_pt
+```
+I evaluated model assumptions using a residuals vs fitted plot generated with `add_predictions()` and `add_residuals()`. The plot shows a roughly elliptical cloud of points centered around zero with no strong pattern or evidence of nonlinearity. The variance of residuals is approximately constant across fitted values. These diagnostics suggest that the linear model assumptions are reasonably satisfied.
