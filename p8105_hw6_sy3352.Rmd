@@ -107,3 +107,24 @@ boot_ci = boot_results |>
 boot_ci
 ```
 
+## Problem 3
+```{r}
+bwt_df = read_csv("data/birthweight.csv") |> 
+  drop_na() |> 
+  rename(
+    head_cm = bhead, length_cm = blength, mother_wt_deliver = delwt, 
+    income_hundreds = fincome, father_race = frace, gestation_week = gaweeks,
+    mother_age_mensrche = menarche, mother_height = mheight, 
+    mother_age_delivery = momage, mother_race = mrace, previous_lbw_n = pnumlbw,
+    previous_small_ges_n = pnumsga, mother_prepreg_bmi = ppbmi, 
+    mother_prepreg_wt = ppwt, cig_smoked_n = smoken, mother_wt_gain = wtgain
+  ) |> 
+  mutate(
+    babysex = factor(babysex, levels = c(1,2), labels = c("male", "female")),
+    father_race = factor(father_race),
+    mother_race = factor(father_race),
+    malform = factor(malform, levels = c(0,1), labels = c("absent", "present"))
+  ) 
+  
+```
+
