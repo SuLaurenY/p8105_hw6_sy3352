@@ -16,7 +16,7 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 ## Problem 1
-```{r}
+```{r warning=FALSE}
 homicides_df = read_csv("data/homicide-data.csv") |> 
   mutate(location = sprintf("%s, %s", city, state),
          solved = case_when(
@@ -44,7 +44,7 @@ baltimore_results = baltimore_fit |>
 baltimore_results
 ```
 
-```{r}
+```{r warning=FALSE}
 by_city = homicides_df |> 
   group_by(location) |> 
   nest() |> 
@@ -71,8 +71,12 @@ by_city_plot = by_city |>
 by_city_plot
 ```
 
+From the plot, we can see that the adjusted odds ratio varies across cities. Most of the cities have an odds ratio between 0 to 1. This means that overall, homicides with male victims are less likely to be solved compared with cases with female victims after adjusting for age and race. New York, NY has the lowest estimated odds ratio in our analysis, while Albuquerque, NM has the highest (almost 2).
+
+However, looking at the confidence interval, around half cities has its confidence interval across 1, indicating that in half of the cities we have no strong evidence to say that there's a difference in case solve rate between male and female victims. Only in cities whose confidence intervals fall entirely below 1 can we say with confidence that male-victim homicides are solved at lower rates.
+
 ## Problem 2
-```{r}
+```{r warning=FALSE}
 boot_weather = weather_df |> 
   select(tmax, tmin, prcp) |> 
   modelr::bootstrap(n = 5000) |> 
@@ -165,17 +169,21 @@ cv_df = modelr::crossv_mc(bwt_df, 50) |>
 
 cv_df_fit = cv_df |> 
   mutate(
-    main_effect_mod = map(train, \(df) lm(bwt ~ length_cm + gestation_week, data = df)),
-    interact_mod = map(train, \(df) lm(bwt ~ (head_cm + length_cm + babysex)^3, data = df))
-  ) |> 
+    main_effect_mod = map(train, \(df) lm(
+      bwt ~ length_cm + gestation_week, data = df)
+      ),
+    interact_mod = map(train, \(df) lm(
+      bwt ~ (head_cm + length_cm + babysex)^3, data = df)
+      )) |> 
   mutate(
-    rmse_main_effect = map2_dbl(main_effect_mod, test, \(mod, df) 
-      sqrt(mean((df$bwt - predict(mod, newdata = df))^2))
+    rmse_main_effect = map2_dbl(
+      main_effect_mod, test, \(mod, df) sqrt(
+      mean((df$bwt - predict(mod, newdata = df))^2))
     ),
-    rmse_interact = map2_dbl(interact_mod, test, \(mod, df) 
-      sqrt(mean((df$bwt - predict(mod, newdata = df))^2))
-    )
-  )
+    rmse_interact = map2_dbl(
+      interact_mod, test, \(mod, df) sqrt(
+      mean((df$bwt - predict(mod, newdata = df))^2))
+    ))
 
 cv_df_results = cv_df_fit |> 
   summarize(
