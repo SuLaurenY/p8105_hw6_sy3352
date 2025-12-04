@@ -48,8 +48,10 @@ baltimore_results
 by_city = homicides_df |> 
   group_by(location) |> 
   nest() |> 
-  mutate(glm_model = map(data, ~glm(solved ~ victim_age + victim_race + 
-                                      victim_sex, data = .x, family = binomial()
+  mutate(glm_model = map(
+    data, ~glm(
+      solved ~ victim_age + victim_race + victim_sex, 
+      data = .x, family = binomial()
   )),
   results = map(glm_model, ~broom::tidy(.x, conf.int = TRUE, 
                                         exponentiate = TRUE))) |> 
@@ -100,7 +102,13 @@ boot_ratio_plot = boot_results |>
   ggplot(aes(x = ratio)) +
   geom_histogram()
 boot_ratio_plot
+```
 
+Across the 5000 bootstrap samples, the distribution of **R²** is bell shaped and approximately symmetric. Most bootstrap estimates fall within a relatively narrow range between 0.93 to 0.95, indicating that the linear model consistently explains a substantial proportion of the variability in `tmax`. This suggests that the relationship between `tmax`, `tmin`, and `prcp` is stable across resampled datasets, and that model fit does not vary dramatically from sample to sample.
+
+However, the distribution of the **β₁ / β₂** ratio is much more variable and noticeably left skewed. Because the precipitation coefficient is relatively small and can vary in sign and magnitude across bootstrap samples, the resulting ratio displays a wider spread and heavier tails. This reflects more uncertainty in comparing the relative effect sizes of `tmin` and `prcp` on `tmax`, and suggests that the ratio is less stable than the **R²**.
+
+```{r}
 boot_ci = boot_results |> 
   summarize(
     r.squared_lower = quantile(r.squared, 0.025), 
@@ -191,7 +199,8 @@ cv_df_results = cv_df_fit |>
     mean_rmse_interact = mean(rmse_interact),
     sd_rmse_main_effect = sd(rmse_main_effect),
     sd_rmse_interact = sd(rmse_interact)
-  )
+  ) |> 
+  knitr::kable(digits = 3)
 cv_df_results
 ```
 
