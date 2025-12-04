@@ -219,3 +219,4 @@ cv_df_results = cv_df_fit |>
 cv_df_results
 ```
 
+From the cross validation result, we can see that the interaction model is more accurate in predicting birth weight (mean rmse = 289). This means that we should consider head circumference, length, baby sex and their interactions when building models for prediction.
